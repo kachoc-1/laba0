@@ -17,7 +17,7 @@ public class Main {
 
         IRepository<IPerson> persons =  factory.<IPerson>createRepository(IPerson.class);
         String path = "src\\main\\resources\\persons.txt";
-        try {
+
             Injector.inject(persons);
 
             CSVReader.read(persons, path);
@@ -42,9 +42,5 @@ public class Main {
 ////3
 //            List<IPerson>iPeople3 = iPeople.stream().filter(itm->
 //                    itm.getFirstName().toLowerCase().matches(".*aa.*")).collect(Collectors.toList());
-        } catch (InjectException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
     }
 }

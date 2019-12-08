@@ -1,6 +1,6 @@
 package exceptions;
 
-public class InjectException extends Exception {
+public class InjectException extends RuntimeException {
     public InjectException(String message) {
         super(message);
     }
