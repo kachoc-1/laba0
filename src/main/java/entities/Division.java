@@ -1,5 +1,7 @@
 package entities;
 
+import ru.vsu.lab.entities.IDivision;
+
 public class Division implements IDivision {
     private Integer id;
     private String name;
@@ -8,6 +10,9 @@ public class Division implements IDivision {
     public Division(String name) {
         this.id = GUID++;
         this.name = name;
+    }
+
+    public Division() {
     }
 
     @Override

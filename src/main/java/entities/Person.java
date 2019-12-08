@@ -1,9 +1,11 @@
 package entities;
 
-import enums.Gender;
-import org.joda.time.LocalDate;
+import ru.vsu.lab.entities.IDivision;
+import ru.vsu.lab.entities.IPerson;
+import ru.vsu.lab.entities.enums.Gender;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class Person implements IPerson {
@@ -26,6 +28,9 @@ public class Person implements IPerson {
         this.gender = gender;
         this.division = division;
         
+    }
+
+    public Person() {
     }
 
     @Override
@@ -84,7 +89,7 @@ public class Person implements IPerson {
      */
     @Override
     public Integer getAge() {
-        return LocalDate.now().year().get() - birthdate.year().get();
+        return LocalDate.now().getYear() - birthdate.getYear();
     }
 
     @Override

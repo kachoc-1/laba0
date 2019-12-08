@@ -1,34 +1,49 @@
 package repository;
 
-import entities.IPerson;
+import anotations.LabInject;
+import ru.vsu.lab.repository.IRepository;
+import sorts.ISorter.ISorter;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class Repository implements IRepository {
+public class Repository<T> implements IRepository<T> {
 
-    private IPerson[] elementPerson;
+    /**
+     * Массив данных
+     */
+    private T[] elements;
+    /**
+     * Текущий размер
+     */
     private int size;
+    /**
+     * Размер по умолчанию
+     */
     private final int defaultCapacity = 10;
+    /**
+     * Класс для сортировки массива
+     */
+    @LabInject
+    private ISorter sorter;
 
     public Repository(int initialCapacity) {
         if (initialCapacity > 0)
-            elementPerson = new IPerson[initialCapacity];
+            elements = (T[]) new Object[defaultCapacity];
         else
             throw new IllegalArgumentException("Illegal Capacity: "
                     + initialCapacity);
     }
 
     public Repository() {
-        elementPerson = new IPerson[defaultCapacity];
+        elements = (T[]) new Object[defaultCapacity];
     }
 
     /**
      * Возвращает размер коллекции
      */
-    @Override
     public int size() {
         return size;
     }
@@ -36,8 +51,8 @@ public class Repository implements IRepository {
     /**
      * Выбрасывает исключение если индес вне границ массива
      *
-     * @param index
-     * @throws IndexOutOfBoundsException
+     * @param index индекс элемента
+     * @throws IndexOutOfBoundsException )
      */
     private void rangeCheck(int index) {
         if (index < 0 || index >= size)
@@ -48,8 +63,8 @@ public class Repository implements IRepository {
      * Выбрасывает исключение при добавлении элемента по индексу
      * если индес вне границ массива
      *
-     * @param index
-     * @throws IndexOutOfBoundsException
+     * @param index индекс
+     * @throws IndexOutOfBoundsException искл
      */
     private void rangeCheckForAdd(int index) {
         if (index < 0 || index > size)
@@ -62,7 +77,7 @@ public class Repository implements IRepository {
      * @param minCapacity заполненность внутреннего массива
      */
     private void ensureCapacityInternal(int minCapacity) {
-        if (minCapacity > elementPerson.length)
+        if (minCapacity > elements.length)
             grow();
     }
 
@@ -72,10 +87,10 @@ public class Repository implements IRepository {
      * @param newCapacity новый максимальный размер коллекции
      */
     private void copyOf(int newCapacity) {
-        IPerson[] oldElementPerson = elementPerson;
-        elementPerson = new IPerson[newCapacity];
+        T[] oldElementPerson = elements;
+        elements = (T[])new Object[newCapacity];
         for (int i = 0; i < size; i++) {
-            elementPerson[i] = oldElementPerson[i];
+            elements[i] = oldElementPerson[i];
         }
     }
 
@@ -83,7 +98,7 @@ public class Repository implements IRepository {
      * Расширяет коллекцию в 1.5 раза
      */
     private void grow() {
-        int oldCapacity = elementPerson.length;
+        int oldCapacity = elements.length;
         int newCapacity = oldCapacity + (oldCapacity / 2 + 1);
         copyOf(newCapacity);
     }
@@ -91,66 +106,61 @@ public class Repository implements IRepository {
     /**
      * С определенного индеска сдвигает каждый элементв массива влево
      *
-     * @param index
+     * @param index индекс
      */
     private void shiftLeftArray(int index) {
         for (int i = index; i < size - 1; i++) {
-            elementPerson[i] = elementPerson[i + 1];
+            elements[i] = elements[i + 1];
         }
     }
 
     /**
      * С определенного индеска сдвигает каждый элементв массива Вправо
      *
-     * @param index
+     * @param index индекс
      */
     private void shiftRightArray(int index) {
         for (int i = size - 1; i > index; i--) {
-            elementPerson[i] = elementPerson[i - 1];
+            elements[i] = elements[i - 1];
         }
     }
 
     /**
      * Проверяет коллекцию на пустоту
      */
-    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
     /**
-     * Проверяет принадлежность person коллекции
+     * Проверяет принадлежность element коллекции
      *
-     * @param person
-     * @return true если person принадлежит коллекции
+     * @param element
+     * @return true если element принадлежит коллекции
      */
-    @Override
-    public boolean contains(IPerson person) {
-        return indexOf(person) >= 0;
+    public boolean contains(T element) {
+        return indexOf(element) >= 0;
     }
 
     /**
      * Добавялет элмент в коллекцию
      *
-     * @param person добавялемый элемент
-     * @return true если добвление возможно
+     * @param element добавялемый элемент
      */
     @Override
-    public boolean add(IPerson person) {
+    public void add(T element) {
         ensureCapacityInternal(size + 1);
-        elementPerson[size++] = person;
-        return true;
+        elements[size++] = element;
     }
 
     /**
      * Удаляет элемент из коллекции
      *
-     * @param person удаляемый элемент
+     * @param element удаляемый элемент
      * @return true если элемент принадлежал коллекции
      */
-    @Override
-    public boolean delete(IPerson person) {
-        int index = indexOf(person);
+    public boolean delete(T element) {
+        int index = indexOf(element);
         if (index >= 0) {
             shiftLeftArray(index);
             size--;
@@ -163,13 +173,14 @@ public class Repository implements IRepository {
      * Добавялет элемент по определенному индексу
      *
      * @param index  индекс добавялемого элемента
-     * @param person добавляемый элемент
+     * @param element добавляемый элемент
      */
     @Override
-    public void add(int index, IPerson person) {
+    public void add(int index, T element) {
         rangeCheckForAdd(index);
         ensureCapacityInternal(size + 1);
         shiftRightArray(index);
+        elements[index] = element;
         size++;
 
     }
@@ -181,30 +192,29 @@ public class Repository implements IRepository {
      * @return удаляемый элемент
      */
     @Override
-    public IPerson delete(int index) {
+    public T delete(int index) {
         rangeCheck(index);
-        IPerson value = elementPerson[index];
+        T value = elements[index];
         shiftLeftArray(index);
-        elementPerson[--size] = null;
+        elements[--size] = null;
         return value;
     }
 
     /**
      * Возвращает индекс элемента
      *
-     * @param person
+     * @param element искомый элемент
      * @return индекс элемента если не найдет то -1
      */
-    @Override
-    public int indexOf(IPerson person) {
-        if (person == null) {
+    public int indexOf(T element) {
+        if (element == null) {
             for (int i = 0; i < size; i++) {
-                if (elementPerson[i] == null)
+                if (elements[i] == null)
                     return i;
             }
         } else {
             for (int i = 0; i < size; i++) {
-                if (person.equals(elementPerson[i]))
+                if (element.equals(elements[i]))
                     return i;
             }
         }
@@ -219,63 +229,58 @@ public class Repository implements IRepository {
      * @return элемент с индексом index
      */
     @Override
-    public IPerson get(int index) {
+    public T get(int index) {
         rangeCheck(index);
 
-        return elementPerson[index];
+        return elements[index];
     }
 
     /**
-     * Заменет элемент с индексом index на person
+     * Заменет элемент с индексом index на element
      *
      * @param index  индекс
-     * @param person добавялемый элемент
+     * @param element добавялемый элемент
      * @return добавленный элемент
      */
     @Override
-    public IPerson set(int index, IPerson person) {
+    public T set(int index, T element) {
         rangeCheck(index);
-        IPerson oldValue = elementPerson[index];
-        elementPerson[index] = person;
+        T oldValue = elements[index];
+        elements[index] = element;
         return oldValue;
     }
 
     /**
-     * Преобразует коллекцию в List<IPerson>
+     * Преобразует коллекцию в List<T>
      */
     @Override
-    public List<IPerson> toList() {
-        return Arrays.asList(elementPerson);
+    public List<T> toList() {
+        T[] returnElements = (T[]) new Object[size];
+        for (int i = 0; i < size; i++) {
+            returnElements[i] = elements[i];
+        }
+        return Arrays.asList(returnElements);
     }
 
-
-    /**
-     * Сортирует по передаваемому компаратору
-     */
     @Override
-    public void sortBy(Comparator<IPerson> comparator) {
-        for (int i = 0; i < size - 1; i++) {
-            for (int j = 0; j < size - i - 1; j++) {
-                if (comparator.compare(elementPerson[j], elementPerson[j + 1]) > 0) {
-                    IPerson temp = elementPerson[j];
-                    elementPerson[j] = elementPerson[j + 1];
-                    elementPerson[j + 1] = temp;
-                }
-            }
-        }
+    public void sortBy(Comparator<T> comparator) {
+        sorter.sort(elements,size,comparator);
     }
 
     /**
      * Возвращает репозиторий объектов удовлетворябщих условию
      */
     @Override
-    public IRepository searchBy(Predicate<IPerson> condition) {
+    public IRepository<T> searchBy(Predicate<T> condition) {
         Repository repository = new Repository();
         for (int i = 0; i < size; i++) {
-            if (condition.test(elementPerson[i])) {
-                repository.add(elementPerson[i]);
+            if (condition.test(elements[i])) {
+                repository.add(elements[i]);
             }
         }
         return repository;
     }
+
+
 }
+
