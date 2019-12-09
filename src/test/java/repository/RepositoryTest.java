@@ -9,8 +9,6 @@ import ru.vsu.lab.entities.enums.Gender;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.*;
-
 public class RepositoryTest {
 
     @Test(expected = IndexOutOfBoundsException.class)

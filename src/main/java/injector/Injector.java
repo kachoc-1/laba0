@@ -1,7 +1,7 @@
 package injector;
 
 import anotations.LabInject;
-import exceptions.FileConfigNotFountException;
+import exceptions.FileConfigNotFoundException;
 import exceptions.InjectException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -25,15 +25,19 @@ public class Injector {
                         field.setAccessible(true);
                         field.set(object, Class.forName(type).newInstance());
                     } else {
-                        throw new InjectException("Not find inject filed");
+                        throw new InjectException("Not found inject filed");
                     }
                 } catch (FileNotFoundException e) {
-                    throw new FileConfigNotFountException("Configuration file not found", e);
-                } catch (InstantiationException | ClassNotFoundException | IOException | ParseException | IllegalAccessException e) {
+                    throw new FileConfigNotFoundException("Configuration file not found", e);
+
+                } catch (ClassNotFoundException e) {
+                    throw new InjectException("Not found class for dependency injection", e);
+
+                } catch (InstantiationException | IOException | ParseException | IllegalAccessException e) {
                     throw new InjectException(e);
                 }
-            }
 
+            }
         }
     }
 

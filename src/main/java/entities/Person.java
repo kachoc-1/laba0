@@ -122,8 +122,8 @@ public class Person implements IPerson {
     }
 
     @Override
-    public IDivision getDivision() {
-        return division;
+    public Division getDivision() {
+        return (Division) division;
     }
 
     @Override
